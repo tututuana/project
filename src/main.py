@@ -37,6 +37,8 @@ def init(name, lang='python'):
         clone('BetaPictoris/cpp-example')
     elif lang.lower() == 'java':
         clone('BetaPictoris/java-example')
+    elif lang.lowr() == 'empty':
+        clone('BetaPictoris/empty-example')
 
 def run(job):
     project = open('project.json', 'r')

@@ -17,11 +17,11 @@ except:
     pass
 
 def clone(repo):
-    os.system('git clone https://github.com/' + repo + ' .')
-    os.system('rm -rf .git')
-    os.system('git config user.name ' + username)
-    os.system('git config user.email ' + email)
-    os.system('git init')
+    os.system('git clone https://github.com/' + repo + ' . >> /dev/null')
+    os.system('rm -rf .git >> /dev/null')
+    os.system('git config user.name ' + username + ' >> /dev/null')
+    os.system('git config user.email ' + email + ' >> /dev/null')
+    os.system('git init >> /dev/null')
 
 def init(name, lang='python'):
     try:
@@ -35,6 +35,8 @@ def init(name, lang='python'):
         clone('BetaPictoris/python-example')
     elif lang.lower() == 'c++':
         clone('BetaPictoris/cpp-example')
+    elif lang.lower() == 'java':
+        clone('BetaPictoris/java-example')
 
 def run(job):
     project = open('project.json', 'r')
@@ -43,10 +45,14 @@ def run(job):
     for currJob in project:
         if job == currJob:
             for working in project[job]:
-                os.system(working)
-
+                if working.startswith('cd'):
+                    os.chdir(working.split(' ')[1])
+                else:
+                    os.system(working + '')
+            break
 
 if job == 'init':
     init(working, lang=lang)
 else:
     run(job=job)
+    

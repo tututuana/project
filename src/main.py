@@ -37,6 +37,10 @@ def init(name, lang='python'):
         clone('BetaPictoris/cpp-example')
     elif lang.lower() == 'java':
         clone('BetaPictoris/java-example')
+    elif lang.lower() == 'react':
+        clone('BetaPictoris/react-example')
+    elif lang.lower() == 'tailwind-react':
+        clone('BetaPictoris/tailwind-react-example')
     elif lang.lower() == 'empty':
         clone('BetaPictoris/empty-example')
 

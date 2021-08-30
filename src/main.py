@@ -22,6 +22,8 @@ def clone(repo):
     os.system('git config user.name ' + username + ' >> /dev/null')
     os.system('git config user.email ' + email + ' >> /dev/null')
     os.system('git init >> /dev/null')
+    os.system('git add * >> /dev/null')
+    os.system('git commit -m init >> /dev/null')
 
 def init(name, lang='python'):
     try:
@@ -41,13 +43,20 @@ def init(name, lang='python'):
         clone('BetaPictoris/react-example')
     elif lang.lower() == 'tailwind-react':
         clone('BetaPictoris/tailwind-react-example')
+    elif lang.lower() == 'dart':
+        clone('BetaPictoris/dart-example')
     elif lang.lower() == 'empty':
         clone('BetaPictoris/empty-example')
+    else:
+        print('Invalid language.')
 
 def run(job):
-    project = open('project.json', 'r')
-    project = json.load(project)
-    
+    try:
+        project = open('project.json', 'r')
+        project = json.load(project)
+    except:
+        print('Invalid project file.')
+
     for currJob in project:
         if job == currJob:
             for working in project[job]:

@@ -1,73 +1,200 @@
 #!/bin/python3
-import os, subprocess, json, sys
+import requests
+import sys
+import json
+import os
 
-username = 'BetaPictoris'
-email = 'git@mrhallway.me'
+# Configuration
+PROJECT_CONFIG = "project.json"
 
-try:
-    job = sys.argv[1]
-except:
-    print('Invalid.')
-    sys.exit()
+## Git configuration
+GIT_NAME = "BetaPictoris"
+GIT_EMAIL = "git@mrhallway.me"
+GIT_BRANCH = "dev"
 
-try:
-    working = sys.argv[2]
-    lang = sys.argv[3]
-except:
+## Project Git repo info
+CHECK_FOR_UPDATES = False
+UPDATE_BRANCH = "beta"
+UPDATE_REPO = "BetaPictoris/project"
+CURRENT_VER = "1.1-" + UPDATE_BRANCH
+
+## Local info
+PROJECT_TYPES = {
+    "python": {
+        "name": "Python",
+        "repo": "BetaPictoris/python-example"
+    },
+    "c++": {
+        "name": "C++",
+        "repo": "BetaPictoris/cpp-example"
+    },
+    "java": {
+        "name": "Java",
+        "repo": "BetaPictoris/java-example"
+    },
+    "react": {
+        "name": "React",
+        "repo": "BetaPictoris/react-example"
+    },
+    "tailwind-react": {
+        "name": "Tailwind React",
+        "repo": "BetaPictoris/tailwind-react-example"
+    },
+    "dart": {
+        "name": "Dart",
+        "repo": "BetaPictoris/dart-example"
+    },
+    "empty": {
+        "name": "Empty",
+        "repo": "BetaPictoris/empty-example"
+    }
+}
+
+GIT_HOSTING = {
+    "github": {
+        "name": "GitHub",
+        "url": "https://github.com"
+    },
+    "gitlab": {
+        "name": "GitLab",
+        "url": "https://gitlab.com"
+    },
+    "bitbucket": {
+        "name": "Bitbucket",
+        "url": "https://bitbucket.org"
+    }
+}
+
+# TODO: Add more license types
+LICENSE_TYPES = {
+    "mit": "https://github.com/IQAndreas/markdown-licenses/blob/master/mit.md",
+    "bsd-3": "https://github.com/IQAndreas/markdown-licenses/blob/master/bsd-3.md"
+}
+# ---------------------------------------------
+
+# SETUP
+## Errors
+class networkingError(Exception):
     pass
 
-def clone(repo):
-    os.system('git clone https://github.com/' + repo + ' . >> /dev/null')
-    os.system('rm -rf .git >> /dev/null')
-    os.system('git config user.name ' + username + ' >> /dev/null')
-    os.system('git config user.email ' + email + ' >> /dev/null')
-    os.system('git init >> /dev/null')
-    os.system('git add * >> /dev/null')
-    os.system('git commit -m init >> /dev/null')
+class projectTypeError(Exception):
+    pass
 
-def init(name, lang='python'):
+class buildError(Exception):
+    pass
+
+## Help message text
+HELP_MSG = """
+Project by Beta Pictoris - version """ + CURRENT_VER + """
+
+info - Get information about the project
+init - Initialize a new project
+update - Check for updates
+build - Build the project
+help - Get this help message"""
+
+# UPDATES
+def checkForUpdates():
+    URL = "https://raw.githubusercontent.com/" + UPDATE_REPO + "/" + UPDATE_BRANCH + "/version"
+
     try:
-        os.mkdir(name)
-    except FileExistsError:
-        pass
-
-    os.chdir(str(name))
-
-    if lang.lower() == 'python':
-        clone('BetaPictoris/python-example')
-    elif lang.lower() == 'c++':
-        clone('BetaPictoris/cpp-example')
-    elif lang.lower() == 'java':
-        clone('BetaPictoris/java-example')
-    elif lang.lower() == 'react':
-        clone('BetaPictoris/react-example')
-    elif lang.lower() == 'tailwind-react':
-        clone('BetaPictoris/tailwind-react-example')
-    elif lang.lower() == 'dart':
-        clone('BetaPictoris/dart-example')
-    elif lang.lower() == 'empty':
-        clone('BetaPictoris/empty-example')
-    else:
-        print('Invalid language.')
-
-def run(job):
-    try:
-        project = open('project.json', 'r')
-        project = json.load(project)
+        r = requests.get(URL)
+        if r.status_code == 200:
+            return r.text
+        else:
+            raise networkingError("Update URL responded with code " + str(r.status_code) + ".")
     except:
-        print('Invalid project file.')
+        return networkingError("Request to fetch update URL failed.")
 
-    for currJob in project:
-        if job == currJob:
-            for working in project[job]:
-                if working.startswith('cd'):
-                    os.chdir(working.split(' ')[1])
-                else:
-                    os.system(working + '')
-            break
+def updateProject():
+    # TODO - Implement automatic update
+    pass
 
-if job == 'init':
-    init(working, lang=lang)
-else:
-    run(job=job)
+# MAIN FUNCTIONS
+def runJob(job):
+    # TODO: Implement job filter (For now, just runs all jobs; ie. a `atend` job will print a message when done)
+    os.system(job)
+
+def clone(repo, dest):
+    os.system("git clone " + repo + " " + dest)
+
+def readProjectConfig():
+    #TODO: Add error handling (For non-existent file)
+    f = open(PROJECT_CONFIG, "r")
+    data = f.read()
+    jsonData = json.loads(data)
+    f.close()
+
+    return jsonData
+
+def getInfo():
+    jsonData = readProjectConfig()
+
+    print("Project name: " + jsonData["name"])
+    print("Description: " + jsonData["license"])
+    print("License: " + jsonData["license"])
+    print("Version: " + jsonData["version"] + " (Remote: " + getProjectRemoteVersion() + ")")
+
+def getProjectRemoteVersion():
+    jsonData = readProjectConfig()
+
+    URL = jsonData["repo_URL"]
+
+    try:
+        r = requests.get(URL)
+        if r.status_code == 200:
+            data = r.text
+            
+            remote_data = json.loads(data)
+
+            return remote_data["version"]
+
+        else:
+            raise networkingError("Project update URL responded with code " + str(r.status_code) + ".")
+    except:
+        return networkingError("Request to fetch project update URL failed.")
+
+def initProject(projectName, projectType):
+    if projectType in PROJECT_TYPES:
+        url = PROJECT_TYPES[projectType]["repo"]
+        clone(url, dest=projectName)
+    else:
+        raise projectTypeError("Invalid project type.")
+
+def buildProject(task="run"):
+    jsonData = readProjectConfig()
+
+    tasksListing = jsonData["build"]
+
+    if task in tasksListing:
+        jobs = tasksListing[task]
+
+        for currentJob in jobs:
+            runJob(currentJob)
+    else:
+        raise buildError("Invalid build task.")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        print(HELP_MSG)
+        sys.exit()
+
+    if CHECK_FOR_UPDATES:
+        REMOTE_VERSION = checkForUpdates()
+        if REMOTE_VERSION != CURRENT_VER:
+            print("Update available!\nCurrent: " + CURRENT_VER + "\nRemote: " + REMOTE_VERSION)
+        else:
+            pass
     
+    if sys.argv[1] == "info":
+        getInfo()
+    elif sys.argv[1] == "init":
+        initProject(sys.argv[2], sys.argv[3])
+    elif sys.argv[1] == "update":
+        updateProject()
+    elif sys.argv[1] == "build":
+        if len(sys.argv) == 2:
+            buildProject()
+        else:
+            buildProject(sys.argv[2])

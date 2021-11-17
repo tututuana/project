@@ -134,9 +134,10 @@ def getInfo():
     print("Project name: " + jsonData["name"])
     print("Description: " + jsonData["license"])
     print("License: " + jsonData["license"])
-    print("Version: " + jsonData["version"] + " (Remote: " + getProjectRemoteVersion() + ")")
+    print("Version: " + jsonData["version"])
 
 def getProjectRemoteVersion():
+    # FIXME: What ever the heck is wrong with this. It's not working.
     jsonData = readProjectConfig()
 
     URL = jsonData["git"]["repo_URL"]

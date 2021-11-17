@@ -14,9 +14,9 @@ GIT_BRANCH = "dev"
 
 ## Project Git repo info
 CHECK_FOR_UPDATES = False
-UPDATE_BRANCH = "master"
+UPDATE_BRANCH = "beta"
 UPDATE_REPO = "BetaPictoris/project"
-CURRENT_VER = "1.1.1-" + UPDATE_BRANCH
+CURRENT_VER = "1.1.2-" + UPDATE_BRANCH
 
 ## Local info
 PROJECT_TYPES = {
@@ -68,7 +68,12 @@ GIT_HOSTING = {
 # TODO: Add more license types
 LICENSE_TYPES = {
     "mit": "https://github.com/IQAndreas/markdown-licenses/blob/master/mit.md",
-    "bsd-3": "https://github.com/IQAndreas/markdown-licenses/blob/master/bsd-3.md"
+    "bsd-2": "https://github.com/IQAndreas/markdown-licenses/blob/master/bsd-2.md",
+    "bsd-3": "https://github.com/IQAndreas/markdown-licenses/blob/master/bsd-3.md",
+
+    "gnu-gpl-v3.0": "https://github.com/IQAndreas/markdown-licenses/blob/master/gnu-lgpl-v3.0.md",
+
+    "unlicense": "https://github.com/IQAndreas/markdown-licenses/blob/master/unlicense.md"
 }
 # ---------------------------------------------
 
@@ -116,10 +121,10 @@ def updateProject():
 def runJob(job):
     os.system(job)
 
-def clone(repo, dest):
+def clone(repo, dest, host="github"):
     os.mkdir(dest)
     os.chdir(dest)
-    os.system("git clone https://github.com/" + repo + " .")
+    os.system("git clone " + GIT_HOSTING[host]['url'] + "/" + repo + " .")
 
 def readProjectConfig():
     try:

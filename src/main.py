@@ -109,7 +109,7 @@ def checkForUpdates():
         return networkingError("Request to fetch update URL failed.")
 
 def updateProject():
-    # TODO - Implement automatic update
+    # TODO - Implement updates
     pass
 
 # MAIN FUNCTIONS
@@ -181,14 +181,17 @@ def buildProject(task="run"):
         raise buildError("Invalid build task.")
 
 if __name__ == "__main__":
-    #TODO: Add error handling 
-
     if len(sys.argv) == 1:
         print(HELP_MSG)
         sys.exit()
 
     if CHECK_FOR_UPDATES:
-        REMOTE_VERSION = checkForUpdates()
+        try:
+            REMOTE_VERSION = checkForUpdates()
+        except networkingError as e:
+            print(e)
+            sys.exit()
+        
         if REMOTE_VERSION != CURRENT_VER:
             print("Update available!\nCurrent: " + CURRENT_VER + "\nRemote: " + REMOTE_VERSION)
         else:
@@ -197,14 +200,22 @@ if __name__ == "__main__":
     if sys.argv[1] == "info":
         getInfo()
     elif sys.argv[1] == "init":
-        initProject(sys.argv[2], sys.argv[3])
-    elif sys.argv[1] == "update":
-        updateProject()
+        try:
+            initProject(sys.argv[2], sys.argv[3])
+        except projectNull as e:
+            print(e)
+            sys.exit()
+    #elif sys.argv[1] == "update":
+    #    updateProject()
     elif sys.argv[1] == "build":
-        if len(sys.argv) == 2:
-            buildProject()
-        else:
-            buildProject(sys.argv[2])
+        try:
+            if len(sys.argv) == 2:
+                buildProject()
+            else:
+                buildProject(sys.argv[2])
+        except buildError as e:
+            print(e)
+            sys.exit()
     else:
         print(HELP_MSG)
 

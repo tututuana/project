@@ -14,7 +14,7 @@ GIT_BRANCH = "dev"
 
 ## Project Git repo info
 CHECK_FOR_UPDATES = False
-UPDATE_BRANCH = "beta"
+UPDATE_BRANCH = "master"
 UPDATE_REPO = "BetaPictoris/project"
 CURRENT_VER = "1.1-" + UPDATE_BRANCH
 

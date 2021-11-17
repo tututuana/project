@@ -16,7 +16,7 @@ GIT_BRANCH = "dev"
 CHECK_FOR_UPDATES = False
 UPDATE_BRANCH = "master"
 UPDATE_REPO = "BetaPictoris/project"
-CURRENT_VER = "1.1-" + UPDATE_BRANCH
+CURRENT_VER = "1.1.1-" + UPDATE_BRANCH
 
 ## Local info
 PROJECT_TYPES = {
@@ -89,7 +89,6 @@ Project by Beta Pictoris - version """ + CURRENT_VER + """
 
 info - Get information about the project
 init - Initialize a new project
-update - Check for updates
 build - Build the project
 help - Get this help message"""
 
@@ -116,7 +115,9 @@ def runJob(job):
     os.system(job)
 
 def clone(repo, dest):
-    os.system("git clone " + repo + " " + dest)
+    os.mkdir(dest)
+    os.chdir(dest)
+    os.system("git clone https://github.com/" + repo + " .")
 
 def readProjectConfig():
     #TODO: Add error handling (For non-existent file)
@@ -133,12 +134,13 @@ def getInfo():
     print("Project name: " + jsonData["name"])
     print("Description: " + jsonData["license"])
     print("License: " + jsonData["license"])
-    print("Version: " + jsonData["version"] + " (Remote: " + getProjectRemoteVersion() + ")")
+    print("Version: " + jsonData["version"])
 
 def getProjectRemoteVersion():
+    # FIXME: What ever the heck is wrong with this. It's not working.
     jsonData = readProjectConfig()
 
-    URL = jsonData["repo_URL"]
+    URL = jsonData["git"]["repo_URL"]
 
     try:
         r = requests.get(URL)
@@ -176,6 +178,8 @@ def buildProject(task="run"):
 
 
 if __name__ == "__main__":
+    #TODO: Add error handling 
+
     if len(sys.argv) == 1:
         print(HELP_MSG)
         sys.exit()
@@ -198,3 +202,6 @@ if __name__ == "__main__":
             buildProject()
         else:
             buildProject(sys.argv[2])
+    else:
+        print(HELP_MSG)
+

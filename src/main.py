@@ -117,7 +117,7 @@ def runJob(job):
 def clone(repo, dest):
     os.mkdir(dest)
     os.chdir(dest)
-    os.system("git clone " + repo + " .")
+    os.system("git clone https://github.com/" + repo + " .")
 
 def readProjectConfig():
     #TODO: Add error handling (For non-existent file)

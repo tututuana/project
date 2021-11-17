@@ -165,12 +165,13 @@ def getProjectRemoteVersion():
     except:
         return networkingError("Request to fetch project update URL failed.")
 
-def initProject(projectName, projectType):
+def initProject(projectName, projectType, host="github"):
     if projectType in PROJECT_TYPES:
         url = PROJECT_TYPES[projectType]["repo"]
-        clone(url, dest=projectName)
     else:
-        raise projectTypeError("Invalid project type.")
+        url = GIT_HOSTING[host]["url"] + "/" + projectType
+    
+    clone(url, dest=projectName, host=host)
 
 def buildProject(task="run"):
     jsonData = readProjectConfig()
@@ -206,9 +207,15 @@ if __name__ == "__main__":
         getInfo()
     elif sys.argv[1] == "init":
         try:
-            initProject(sys.argv[2], sys.argv[3])
+            if len(sys.argv) == 4:
+                initProject(sys.argv[2], sys.argv[3], sys.argv[4])
+            elif len(sys.argv) == 3:
+                initProject(sys.argv[2], sys.argv[3])
         except projectNull as e:
             print(e)
+            sys.exit()
+        except IndexError:
+            print("Project name and type are required.")
             sys.exit()
     #elif sys.argv[1] == "update":
     #    updateProject()

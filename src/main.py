@@ -111,7 +111,6 @@ def updateProject():
 
 # MAIN FUNCTIONS
 def runJob(job):
-    # TODO: Implement job filter (For now, just runs all jobs; ie. a `atend` job will print a message when done)
     os.system(job)
 
 def clone(repo, dest):
@@ -175,7 +174,6 @@ def buildProject(task="run"):
             runJob(currentJob)
     else:
         raise buildError("Invalid build task.")
-
 
 if __name__ == "__main__":
     #TODO: Add error handling 

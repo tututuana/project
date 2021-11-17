@@ -83,6 +83,9 @@ class projectTypeError(Exception):
 class buildError(Exception):
     pass
 
+class projectNull(Exception):
+    pass
+
 ## Help message text
 HELP_MSG = """
 Project by Beta Pictoris - version """ + CURRENT_VER + """
@@ -119,13 +122,15 @@ def clone(repo, dest):
     os.system("git clone https://github.com/" + repo + " .")
 
 def readProjectConfig():
-    #TODO: Add error handling (For non-existent file)
-    f = open(PROJECT_CONFIG, "r")
-    data = f.read()
-    jsonData = json.loads(data)
-    f.close()
+    try:
+        f = open(PROJECT_CONFIG, "r")
+        data = f.read()
+        jsonData = json.loads(data)
+        f.close()
 
-    return jsonData
+        return jsonData
+    except:
+        raise projectNull("Project configuration file is missing or broken.")
 
 def getInfo():
     jsonData = readProjectConfig()

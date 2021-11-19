@@ -96,6 +96,7 @@ HELP_MSG = """
 Project by Beta Pictoris - version """ + CURRENT_VER + """
 
 info - Get information about the project
+update - Update the main file
 init - Initialize a new project
 build - Build the project
 help - Get this help message"""
@@ -113,10 +114,26 @@ def checkForUpdates():
     except:
         return networkingError("Request to fetch update URL failed.")
 
-def updateProject():
-    # TODO - Implement updates
-    pass
+def returnraw(reponame, location, branch="master"):
+    URL = "https://raw.githubusercontent.com/" + reponame + "/" + branch + "/" + location
+    try:
+        r = requests.get(URL)
+        if r.status_code == 200:
+            return r.text
+    except Exception as e:
+        raise networkingError("Request to fetch project update URL failed with" + str(e))
 
+def updateProject():
+    input("Close if you opened file in any IDE. Press any key to continue")
+    os.system("touch newmain.py")
+    f = open("newmain.py", "w")
+    try:
+        f.write(returnraw(UPDATE_REPO, "src/main.py", UPDATE_BRANCH))
+        f.close()
+        os.remove("main.py")
+    except Exception as e:
+        f.close()
+        raise buildError("Failed to update project with error: " + str(e))
 # MAIN FUNCTIONS
 def runJob(job):
     os.system(job)
@@ -135,7 +152,8 @@ def readProjectConfig():
 
         return jsonData
     except:
-        raise projectNull("Project configuration file is missing or broken.")
+        # raise projectNull("Project configuration file is missing or broken.")
+        pass
 
 def getInfo():
     jsonData = readProjectConfig()
@@ -147,23 +165,8 @@ def getInfo():
 
 def getProjectRemoteVersion():
     # FIXME: What ever the heck is wrong with this. It's not working.
-    jsonData = readProjectConfig()
-
-    URL = jsonData["git"]["repo_URL"]
-
-    try:
-        r = requests.get(URL)
-        if r.status_code == 200:
-            data = r.text
-            
-            remote_data = json.loads(data)
-
-            return remote_data["version"]
-
-        else:
-            raise networkingError("Project update URL responded with code " + str(r.status_code) + ".")
-    except:
-        return networkingError("Request to fetch project update URL failed.")
+    # It's deprecated. Because same thing on checkForUpdates()
+    pass
 
 def initProject(projectName, projectType, host="github"):
     if projectType in PROJECT_TYPES:
@@ -217,8 +220,8 @@ if __name__ == "__main__":
         except IndexError:
             print("Project name and type are required.")
             sys.exit()
-    #elif sys.argv[1] == "update":
-    #    updateProject()
+    elif sys.argv[1] == "update":
+        updateProject()
     elif sys.argv[1] == "build":
         try:
             if len(sys.argv) == 2:
